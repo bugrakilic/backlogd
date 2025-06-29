@@ -1,0 +1,25 @@
+# Core dependencies for backlogd CLI Backlog Manager
+
+# Rich terminal formatting and interactive features
+rich>=13.0.0
+
+# YAML file parsing and generation
+PyYAML>=6.0
+
+# Data manipulation and Excel export
+pandas>=1.5.0
+
+# Excel file support for pandas
+openpyxl>=3.0.0
+
+# Standard library modules used (no installation required):
+# - os
+# - sys
+# - csv
+# - argparse
+# - shlex
+# - datetime
+# - pathlib
+# - typing
+# - dataclasses
+# - enum
