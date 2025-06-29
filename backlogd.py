@@ -483,6 +483,7 @@ class InteractiveCLI:
     def exit_cli(self, args=None):
         """Exit the CLI."""
         self.console.print("[yellow]Goodbye! 👋[/yellow]")
+        self.console.print("[yellow]Made by [link=https://bugrakilic.net]Bugra Kilic[/link] © 2025[/yellow]")
         self.running = False
     
     def clear_screen(self, args=None):
@@ -787,6 +788,7 @@ class InteractiveCLI:
                 self.console.print("\n[yellow]Use 'exit' to quit.[/yellow]")
             except EOFError:
                 self.console.print("\n[yellow]Goodbye! 👋[/yellow]")
+                self.console.print("[yellow]Made by [link=https://bugrakilic.net]Bugra Kilic[/link] © 2025[/yellow]")
                 break
             except Exception as e:
                 self.console.print(f"[red]Error: {e}[/red]")
