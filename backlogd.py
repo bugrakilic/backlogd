@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, asdict
 from enum import Enum
+from art import *
 
 try:
     from rich.console import Console
@@ -418,17 +419,17 @@ class InteractiveCLI:
     
     def show_banner(self):
         """Display the application banner."""
-        banner = """
-╔══════════════════════════════════════════════════════════════╗
-║        🎯 backlogd - CLI Product Backlog Manager             ║
-║                                                              ║
-║  A powerful terminal-based tool for managing product         ║
-║  backlogs with YAML storage and rich formatting.             ║
-║                                                              ║
-║  Type 'help' for available commands or 'exit' to quit.       ║
-╚══════════════════════════════════════════════════════════════╝
+
+        ascii_art = text2art("backlogd")
+        subtitle = """
+Product Backlog Manager for CLI
+
+A powerful terminal-based tool for managing product backlogs with YAML storage and rich formatting. 
+
+Type 'help' for available commands or 'exit' to quit. 
         """
-        self.console.print(banner, style="bold cyan")
+        self.console.print(Text(ascii_art, style="bold cyan"))
+        self.console.print(subtitle, style="bold cyan")
     
     def get_prompt(self):
         """Get the CLI prompt string."""
@@ -482,8 +483,8 @@ class InteractiveCLI:
     
     def exit_cli(self, args=None):
         """Exit the CLI."""
-        self.console.print("[yellow]Goodbye! 👋[/yellow]")
-        self.console.print("[yellow]Built by [link=https://bugrakilic.net]Bugra Kilic[/link] © 2025[/yellow]")
+        self.console.print("[yellow]Goodbye! 👋[/yellow]\n")
+        self.console.print("[yellow]Built by [link=https://bugrakilic.net]Bugra Kilic[/link] with [link=https://claude.ai]Claude[/link] © 2025[/yellow]\n")
         self.running = False
     
     def clear_screen(self, args=None):
@@ -787,8 +788,8 @@ class InteractiveCLI:
             except KeyboardInterrupt:
                 self.console.print("\n[yellow]Use 'exit' to quit.[/yellow]")
             except EOFError:
-                self.console.print("\n[yellow]Goodbye! 👋[/yellow]")
-                self.console.print("[yellow]Built by [link=https://bugrakilic.net]Bugra Kilic[/link] © 2025[/yellow]")
+                self.console.print("\n[yellow]Goodbye! 👋[/yellow]\n")
+                self.console.print("[yellow]Built by [link=https://bugrakilic.net]Bugra Kilic[/link] with [link=https://claude.ai]Claude[/link] © 2025[/yellow]\n")
                 break
             except Exception as e:
                 self.console.print(f"[red]Error: {e}[/red]")
