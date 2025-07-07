@@ -1,6 +1,12 @@
-# 🎯 backlogd - CLI Backlog Manager
+# backlogd - Product Backlog Manager for CLI
 
-A powerful terminal-based tool for managing product backlogs with YAML storage and rich formatting. Built for developers and product managers who prefer command-line interfaces for their workflow management.
+A powerful terminal-based tool for managing product backlogs with YAML storage and rich formatting. Built for developers and product managers who prefer command-line interfaces for their workflow management. 
+
+![Logo](./static/images/backlogd_banner_v1.png)
+
+## Demo 
+
+![Demo of my application](./static/images/backlogd_gif_v1.gif)
 
 ## Features
 
@@ -42,21 +48,6 @@ Simply run the script without arguments to enter interactive mode:
 python backlogd.py
 # or if made executable:
 ./backlogd.py
-```
-
-### Command Line Mode
-
-You can also use direct commands:
-
-```bash
-# Create a project
-python backlogd.py project create my-web-app
-
-# Add an item
-python backlogd.py item add my-web-app "User Login" "Implement authentication system" --priority high
-
-# List items
-python backlogd.py item list --project my-web-app --status todo
 ```
 
 ## Interactive Mode Commands
@@ -164,7 +155,7 @@ python backlogd.py export xlsx mobile-app --filename mobile-backlog.xlsx
 ## File Structure
 
 ```
-your-project/
+backlogd/
 ├── backlogd.py           # Main application
 ├── requirements.txt      # Python dependencies
 ├── README.md            # This file
@@ -223,7 +214,7 @@ This project is open source. Please check the repository for license details.
 
 **Missing Dependencies**
 ```bash
-pip install rich pyyaml pandas openpyxl
+pip install rich pyyaml pandas openpyxl art
 ```
 
 **Permission Issues**
