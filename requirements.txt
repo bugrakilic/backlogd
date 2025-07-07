@@ -12,6 +12,9 @@ pandas>=1.5.0
 # Excel file support for pandas
 openpyxl>=3.0.0
 
+# ASCII-art for backlogd
+art>=6.5
+
 # Standard library modules used (no installation required):
 # - os
 # - sys
