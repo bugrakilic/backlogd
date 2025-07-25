@@ -253,7 +253,12 @@ class BacklogManager:
             if epic:
                 filtered_items = [item for item in filtered_items if item.epic == epic]
             if status:
-                filtered_items = [item for item in filtered_items if item.status == status]
+                # Handle comma-separated status values
+                if ',' in status:
+                    allowed_statuses = [s.strip() for s in status.split(',')]
+                    filtered_items = [item for item in filtered_items if item.status in allowed_statuses]
+                else:
+                    filtered_items = [item for item in filtered_items if item.status == status]
             
             if not filtered_items:
                 continue
@@ -339,7 +344,7 @@ class BacklogManager:
                     self.console.print(f"[yellow]No items to export in project '{project_name}'.[/yellow]")
                     return False
                 
-                fieldnames = list(asdict(self.projects[project_name][0]).keys())
+                fieldnames = list(asdict(self.projects[project_name][0])).keys()
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                 
                 writer.writeheader()
@@ -419,7 +424,6 @@ class InteractiveCLI:
     
     def show_banner(self):
         """Display the application banner."""
-
         ascii_art = text2art("backlogd")
         subtitle = """
 Product Backlog Manager for CLI
@@ -454,7 +458,8 @@ Type 'help' for available commands or 'exit' to quit.
   delete-project <name> Delete a project
 
 [bold yellow]Item Management:[/bold yellow]
-  items [filters]      List items in current project
+  items [filters]      List items in current project (excludes done items)
+  items all [filters]  List all items including done ones
   add <title> <desc>   Add a new item (interactive)
   update <id>          Update an item (interactive)
   delete <id>          Delete an item
@@ -474,6 +479,7 @@ Type 'help' for available commands or 'exit' to quit.
 [bold yellow]Examples:[/bold yellow]
   use web-app
   items --priority high --status todo
+  items all --priority high
   add "User Login" "Implement authentication system"
   update TEST-APP-1
   show TEST-APP-1
@@ -560,8 +566,18 @@ Type 'help' for available commands or 'exit' to quit.
             self.console.print("[red]No project selected. Use 'use <project>' to select a project.[/red]")
             return
         
+        # Check for "all" keyword
+        show_all = "all" in args
+        if show_all:
+            args.remove("all")  # Remove "all" from args to avoid being processed as a filter
+        
         # Parse filter arguments
         filters = self.parse_filter_args(args)
+        
+        # Unless "all" is specified, exclude "done" items
+        if not show_all:
+            filters['status'] = 'todo,in_progress,blocked'
+        
         self.manager.list_items(
             project_name=self.current_project,
             **filters
@@ -572,7 +588,9 @@ Type 'help' for available commands or 'exit' to quit.
         filters = {}
         i = 0
         while i < len(args):
-            if args[i].startswith('--'):
+            if args[i] == "all":
+                i += 1  # "all" is handled in list_items
+            elif args[i].startswith('--'):
                 filter_name = args[i][2:]  # Remove '--'
                 if i + 1 < len(args) and not args[i + 1].startswith('--'):
                     filters[filter_name] = args[i + 1]
