@@ -1,0 +1,10 @@
+# backlogd local data + python artifacts
+database_backlogd/*.yaml
+database_backlogd/*.csv
+database_backlogd/*.xlsx
+*.csv
+*.xlsx
+!tests/**/*.csv
+__pycache__/
+*.pyc
+.pytest_cache/

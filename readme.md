@@ -10,14 +10,15 @@ A powerful terminal-based tool for managing product backlogs with YAML storage a
 
 ## Features
 
-- **Interactive CLI Shell**: Full-featured interactive mode with command completion and help
+- **Interactive CLI Shell**: Prompt shows the project (`backlogd (demo)>>`), last project remembered, history + autocomplete when `prompt_toolkit` is installed
+- **Views**: Table (`items`), kanban (`board`), dashboard (`stats`), full-text search (`search`)
 - **Project Management**: Create, delete and switch between multiple projects
-- **Backlog Item Management**: Add, update, delete and view backlog items with rich details
-- **Rich Filtering**: Filter items by priority, status, sprint, epic or assignee
-- **Data Export**: Export to CSV or Excel formats
+- **Backlog Item Management**: Guided add/update with selects + autocomplete when `questionary` is installed, rich Markdown detail view
+- **Rich Filtering**: Filter by priority, status, sprint, epic or assignee (comma lists), sort by priority/status/points/updated/title
+- **Data Export/Import**: Export single project or `--all` to CSV/Excel, import CSV back
 - **YAML Storage**: Human-readable local storage using YAML files
-- **Beautiful Terminal UI**: Rich formatting with colors, tables and panels
-- **Comprehensive Metadata**: Track story points, sprints, epics, assignees and timestamps
+- **Beautiful Terminal UI**: Themed Rich output, `NO_COLOR` support, narrow-terminal friendly
+- **Comprehensive Metadata**: Track story points (0-100 validated), sprints, epics, assignees and timestamps
 
 ## Installation
 
@@ -31,6 +32,11 @@ A powerful terminal-based tool for managing product backlogs with YAML storage a
 ```bash
 pip install -r requirements.txt
 ```
+
+Core deps are `rich`, `pyyaml`, `pandas`, `openpyxl`, `art`.
+Optional but recommended for the best interactive experience
+(selects, autocomplete, history): `questionary`, `prompt_toolkit` —
+both are already in `requirements.txt` and degrade gracefully if missing.
 
 ### Make Executable (Optional)
 
@@ -64,24 +70,32 @@ python backlogd.py
 - `create-project <name>` - Create a new project
 - `delete-project <name>` - Delete a project
 
-### Item Management
-- `items [filters]` - List items in current project
-- `add <title> <description>` - Add a new item (interactive)
-- `update <id>` - Update an item (interactive)
-- `delete <id>` - Delete an item
-- `show <id>` - Show detailed item information
+### Views
+- `items [all] [filters]` - Table view (hides `done` unless `all`)
+- `board [filters]` / `kanban` - Kanban grouped by status
+- `stats [project]` / `dashboard` - Totals, bars, top assignees/sprints/epics
+- `search <text> [--status ..] [--priority ..]` / `find` - Full-text search
 
-### Export
-- `export-csv [filename]` - Export current project to CSV
-- `export-xlsx [filename]` - Export current project to Excel
+### Item Management
+- `add <title> <description>` - Add a new item (guided prompts)
+- `update <id>` - Update an item (selects keep current value)
+- `delete <id>` - Delete an item
+- `show <id>` - Markdown description + details grid
+
+### Export / Import
+- `export-csv [--all] [filename]` - Export project (or all combined) to CSV
+- `export-xlsx [--all] [filename]` - Export project (or all combined) to Excel
+- `import-csv <filename>` - Import CSV into the current project
 
 ### Filtering Options
-Use these flags with the `items` command:
-- `--priority <level>` - Filter by priority (low, medium, high, critical)
-- `--status <status>` - Filter by status (todo, in_progress, done, blocked)
+Use these flags with `items` / `board`:
+- `--priority <level>` - low, medium, high, critical (comma lists allowed)
+- `--status <status>` - todo, in_progress, done, blocked (comma lists allowed)
 - `--sprint <name>` - Filter by sprint
 - `--epic <name>` - Filter by epic
 - `--assignee <name>` - Filter by assignee
+- `--search <text>` - Search id/title/description
+- `--sort <key>` - priority, status, points, updated, title
 
 ## Data Structure
 
@@ -142,14 +156,23 @@ python backlogd.py item list --project mobile-app
 # Filter items
 python backlogd.py item list --project mobile-app --priority high --status todo
 
-# Update an item
+# Board / stats / search
+python backlogd.py item board --project mobile-app
+python backlogd.py item stats --project mobile-app
+python backlogd.py item search --project mobile-app push
+
+# Update an item (points are validated 0-100)
 python backlogd.py item update mobile-app MOBILE-APP-1 --status in_progress --assignee "jane.smith"
 
 # Show item details
 python backlogd.py item show mobile-app MOBILE-APP-1
 
-# Export to Excel
+# Export to Excel (or everything at once)
 python backlogd.py export xlsx mobile-app --filename mobile-backlog.xlsx
+python backlogd.py export csv --all --filename all-backlog.csv
+
+# Import a CSV back (creates the project if missing)
+python backlogd.py import csv mobile-app --filename mobile-backlog.csv
 ```
 
 ## File Structure
@@ -186,6 +209,8 @@ Combine multiple filters to find exactly the items you need.
 
 ### Export Options
 Generate reports in CSV or Excel format for stakeholders who prefer spreadsheets.
+Use `--all` for one combined file with a `project` column, and `import csv`
+to load an exported file back (missing projects are created, id clashes get new ids).
 
 ## Error Handling
 
@@ -214,6 +239,8 @@ This project is open source. Please check the repository for license details.
 
 **Missing Dependencies**
 ```bash
+pip install -r requirements.txt
+# minimal core only:
 pip install rich pyyaml pandas openpyxl art
 ```
 
@@ -233,10 +260,16 @@ The application needs write access to create the `database_backlogd/` directory 
 
 ## Roadmap
 
+Done:
+- Phase 1: theme, `board`, `stats`, `search`, responsive tables
+- Phase 2: `backlogd (project)>>` prompt, guided forms, history/autocomplete,
+  last-project resume, rich `show`/`status`
+- Small wins: `export --all`, CSV import, 0-100 points validation, onboarding,
+  `NO_COLOR`/narrow support, smoke tests, updated docs
+
 Potential future enhancements:
+- Full-screen Textual TUI (`tui` mode, CLI kept for scripts)
 - Integration with popular project management tools
-- Web interface option
 - Team collaboration features
 - Advanced reporting and analytics
 - Custom field support
-- Import from other backlog tools

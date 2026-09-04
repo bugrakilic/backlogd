@@ -15,6 +15,10 @@ openpyxl>=3.0.0
 # ASCII-art for backlogd
 art>=6.5
 
+# Phase 2: nicer forms + history/autocomplete (optional, graceful fallback)
+questionary>=2.0.0
+prompt_toolkit>=3.0.0
+
 # Standard library modules used (no installation required):
 # - os
 # - sys
