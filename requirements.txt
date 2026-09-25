@@ -19,6 +19,9 @@ art>=6.5
 questionary>=2.0.0
 prompt_toolkit>=3.0.0
 
+# Phase 3: full-screen TUI (only needed for `tui`; classic CLI works without it)
+textual>=0.86.0
+
 # Standard library modules used (no installation required):
 # - os
 # - sys

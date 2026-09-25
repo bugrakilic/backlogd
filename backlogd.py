@@ -12,10 +12,10 @@ import argparse
 import shlex
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional
 from dataclasses import dataclass, asdict
 from enum import Enum
-from art import *
+from art import text2art
 
 try:
     from rich.console import Console
@@ -23,12 +23,9 @@ try:
     from rich.panel import Panel
     from rich.prompt import Prompt, Confirm
     from rich.text import Text
-    from rich.layout import Layout
-    from rich.live import Live
     from rich.columns import Columns
     from rich.markdown import Markdown
     from rich.rule import Rule
-    from rich.align import Align
     from rich.theme import Theme
     from rich import box
     from rich.markup import escape
@@ -327,13 +324,22 @@ class BacklogManager:
             return False
         
         if Confirm.ask(f"Are you sure you want to delete project '{project_name}'?"):
-            project_file = self.get_project_file(project_name)
-            if project_file.exists():
-                project_file.unlink()
-            del self.projects[project_name]
-            self.console.print(f"[green]Project '{project_name}' deleted successfully.[/green]")
-            return True
+            return self.remove_project(project_name)
         return False
+
+    def remove_project(self, project_name: str) -> bool:
+        """Delete a project without prompting (for the TUI)."""
+        if project_name not in self.projects:
+            self.console.print(f"[red]Project '{project_name}' not found.[/red]")
+            return False
+        try:
+            self.get_project_file(project_name).unlink(missing_ok=True)
+        except Exception as e:
+            self.console.print(f"[red]Could not delete file: {e}[/red]")
+            return False
+        del self.projects[project_name]
+        self.console.print(f"[green]Project '{project_name}' deleted successfully.[/green]")
+        return True
     
     def generate_item_id(self, project_name: str) -> str:
         """Generate a unique ID for a backlog item."""
@@ -432,12 +438,23 @@ class BacklogManager:
         for i, item in enumerate(self.projects[project_name]):
             if item.id == item_id:
                 if Confirm.ask(f"Delete item '{item_id}: {item.title}'?"):
-                    del self.projects[project_name][i]
-                    self.save_project(project_name)
-                    self.console.print(f"[green]Item '{item_id}' deleted successfully.[/green]")
-                    return True
+                    return self.remove_item(project_name, item_id)
                 return False
-        
+
+        self.console.print(f"[red]Item '{item_id}' not found.[/red]")
+        return False
+
+    def remove_item(self, project_name: str, item_id: str) -> bool:
+        """Delete an item without prompting (for the TUI)."""
+        if project_name not in self.projects:
+            self.console.print(f"[red]Project '{project_name}' not found.[/red]")
+            return False
+        for i, item in enumerate(self.projects[project_name]):
+            if item.id == item_id:
+                del self.projects[project_name][i]
+                self.save_project(project_name)
+                self.console.print(f"[green]Item '{item_id}' deleted successfully.[/green]")
+                return True
         self.console.print(f"[red]Item '{item_id}' not found.[/red]")
         return False
     
@@ -973,6 +990,9 @@ class InteractiveCLI:
             'export-xlsx': self.export_xlsx,
             'import-csv': self.import_csv,
 
+            # Full-screen TUI
+            'tui': self.launch_tui,
+
             # Status
             'status': self.show_status,
         }
@@ -1049,6 +1069,7 @@ Type 'help' for available commands or 'exit' to quit.
   exit, quit, q        Exit
   clear, cls           Clear screen
   status               Current project summary
+  tui [project]        Full-screen TUI (sidebar + table)
 
 [brand]Projects:[/brand]
   projects             List all projects
@@ -1528,6 +1549,21 @@ Type 'help' for available commands or 'exit' to quit.
         else:
             self.console.print("[danger]Usage: import-csv <filename>[/]")
     
+    def launch_tui(self, args):
+        """Launch the full-screen Textual TUI; return here on exit."""
+        project = args[0] if args else self.current_project
+        try:
+            from tui import BacklogApp
+        except ImportError:
+            self.console.print("[danger]TUI needs 'textual'. Run: pip install -r requirements.txt[/]")
+            return
+        try:
+            BacklogApp(data_dir=str(self.manager.data_dir), project=project).run()
+        finally:
+            self.manager.load_projects()
+            if self.current_project not in self.manager.projects:
+                self.current_project = None
+
     def parse_command(self, user_input):
         """Parse user input into command and arguments."""
         try:
@@ -1696,6 +1732,11 @@ def create_parser():
     csv_import = import_subparsers.add_parser('csv', help='Import from CSV (export format)')
     csv_import.add_argument('project', help='Project name (created if missing)')
     csv_import.add_argument('--filename', required=True, help='Input CSV file')
+
+    # Full-screen TUI (Phase 3, Textual; lazy import so classic CLI needs nothing new)
+    tui_parser = subparsers.add_parser('tui', help='Launch full-screen TUI')
+    tui_parser.add_argument('--project', help='Project to open (default: first)')
+    tui_parser.add_argument('--data-dir', default='database_backlogd', help='Data directory')
     
     return parser
 
@@ -1784,6 +1825,15 @@ def main():
     elif args.command == 'import':
         if args.import_format == 'csv':
             manager.import_from_csv(args.project, args.filename)
+
+    # Full-screen TUI
+    elif args.command == 'tui':
+        try:
+            from tui import BacklogApp
+        except ImportError:
+            print("TUI needs the 'textual' package. Run: pip install -r requirements.txt")
+            sys.exit(1)
+        BacklogApp(data_dir=args.data_dir, project=args.project).run()
 
 
 if __name__ == "__main__":

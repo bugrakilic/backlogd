@@ -1,5 +1,19 @@
 # Usage of backlogd
 
+### Full-screen TUI (Phase 3, needs `textual`)
+python backlogd.py tui --project test-app   # full TUI, `q` quits
+backlogd (test-app)>> tui                   # launch from interactive mode
+
+Views: `1` table, `2` board, `3` stats. Filter bar narrows table + board
+(text, status, priority, sprint, epic — status defaults to `open`);
+`s` cycles sort; `tab` cycles focus. Sidebar top entry aggregates all projects.
+Items: `n` new, `e` edit, `d` delete (confirm), `enter` details,
+`space` advance status (todo -> doing -> done).
+Projects: sidebar `enter` switches, `N` new, `D` delete (confirm).
+Data: `X` export (project/all, csv/xlsx), `I` import CSV.
+`/` focuses filter (`enter`/`esc` leaves it, `esc` again clears),
+`ctrl+k` command palette covers every operation, `?` help, `q` quit.
+
 Prompt shows the active project: `backlogd>>` or `backlogd (demo)>>`.
 Last used project is remembered (`~/.backlogdrc`). History lives in
 `~/.backlogd_history` when `prompt_toolkit` is installed.

@@ -1,16 +1,13 @@
-# backlogd - Product Backlog Manager for CLI
+# backlogd - CLI & TUI Product Backlog Manager 
 
 A powerful terminal-based tool for managing product backlogs with YAML storage and rich formatting. Built for developers and product managers who prefer command-line interfaces for their workflow management. 
 
 ![Logo](./static/images/backlogd_banner_v1.png)
 
-## Demo 
-
-![Demo of my application](./static/images/backlogd_gif_v1.gif)
-
 ## Features
 
 - **Interactive CLI Shell**: Prompt shows the project (`backlogd (demo)>>`), last project remembered, history + autocomplete when `prompt_toolkit` is installed
+- **Full-screen TUI**: `python backlogd.py tui` — sidebar, table/board/stats tabs, item + project management, export/import dialogs, `Ctrl+K` palette (Textual, full CLI parity)
 - **Views**: Table (`items`), kanban (`board`), dashboard (`stats`), full-text search (`search`)
 - **Project Management**: Create, delete and switch between multiple projects
 - **Backlog Item Management**: Guided add/update with selects + autocomplete when `questionary` is installed, rich Markdown detail view
@@ -24,7 +21,7 @@ A powerful terminal-based tool for managing product backlogs with YAML storage a
 
 ### Prerequisites
 
-- Python 3.7 or higher
+- Python 3.9 or higher (required by Textual for the `tui` mode)
 - pip package manager
 
 ### Install Dependencies
@@ -179,10 +176,12 @@ python backlogd.py import csv mobile-app --filename mobile-backlog.csv
 
 ```
 backlogd/
-├── backlogd.py           # Main application
+├── backlogd.py           # Main application (manager + classic CLI)
+├── tui.py                # Full-screen Textual TUI (`tui` command)
+├── tests/                # Smoke + TUI pilot tests
 ├── requirements.txt      # Python dependencies
 ├── README.md            # This file
-├── USAGE.md            # Simple usage instructions 
+├── USAGE.md            # Simple usage instructions
 └── database_backlogd/   # Data directory (auto-created)
     ├── project1.yaml    # Project data files
     ├── project2.yaml
@@ -266,9 +265,17 @@ Done:
   last-project resume, rich `show`/`status`
 - Small wins: `export --all`, CSV import, 0-100 points validation, onboarding,
   `NO_COLOR`/narrow support, smoke tests, updated docs
+- Phase 3: Textual TUI at full CLI parity — board/stats tabs, item modals
+  (new/edit/delete/detail), project create/delete, export/import dialogs,
+  `Ctrl+K` palette + registry-driven help, 23 pilot tests
+- Gap close-out: sprint/epic filters, all-projects aggregate view,
+  last-project resume, open-by-default filter, sidebar breakdowns,
+  Created timestamp, richer statusline (31 tests total)
 
 Potential future enhancements:
-- Full-screen Textual TUI (`tui` mode, CLI kept for scripts)
+- Package split (`backlogd/` + thin `backlogd.py` shim) when single-file limits bite
+- Web interface option
+- Team collaboration features
 - Integration with popular project management tools
 - Team collaboration features
 - Advanced reporting and analytics
